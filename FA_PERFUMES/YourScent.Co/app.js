@@ -90,6 +90,8 @@ app.post('/perfume/:id/review', checkAuthenticated, ReviewController.addReview);
 
 // View all reviews created by the current user
 app.get('/myreviews', checkAuthenticated, ReviewController.getUserReviews);
+// Admin-only: delete a review
+app.post('/review/:id/delete', checkAuthenticated, checkAuthorised(['admin']), ReviewController.deleteReview);
 // --------------------- User Routes --------------------------
 app.get('/register', (req, res) => {
     res.render('register');

@@ -24,6 +24,11 @@ const Review = {
                  ORDER BY r.created_at DESC`;
     db.query(sql, [userId], callback);
   }
+  ,
+  deleteReview: (reviewId, callback) => {
+    const sql = 'DELETE FROM reviews WHERE reviewId = ?';
+    db.query(sql, [reviewId], callback);
+  }
 };
 
 module.exports = Review;

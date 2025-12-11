@@ -109,7 +109,11 @@
 </head>
 <body>
   <div class="page">
-    <a class="breadcrumb-link" href="/perfumes">&#8592; Back to Products</a>
+    <% if (user && user.role === 'admin') { %>
+      <a class="breadcrumb-link" href="/inventory">&#8592; Back to Products</a>
+    <% } else { %>
+      <a class="breadcrumb-link" href="/shopping">&#8592; Back to Products</a>
+    <% } %>
     <div class="hero-card">
       <div class="row g-4">
         <div class="col-lg-6 img-panel">
@@ -166,6 +170,13 @@
                   </div>
                   <% if (r.comment) { %>
                     <div class="mt-2"><%= r.comment %></div>
+                  <% } %>
+                  <% if (user && user.role === 'admin') { %>
+                    <div class="mt-2 text-end">
+                      <form method="POST" action="/review/<%= r.reviewId %>/delete" onsubmit="return confirm('Delete this review?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                      </form>
+                    </div>
                   <% } %>
                 </div>
               <% }) %>

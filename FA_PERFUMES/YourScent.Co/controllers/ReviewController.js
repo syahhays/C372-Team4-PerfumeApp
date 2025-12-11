@@ -28,6 +28,18 @@ const ReviewController = {
       res.render('myReviews', { reviews });
     });
   }
+  ,
+  deleteReview: (req, res) => {
+    const reviewId = req.params.id;
+    Review.deleteReview(reviewId, (err) => {
+      if (err) {
+        req.flash('error', 'Failed to delete review.');
+        return res.redirect(req.get('referer') || '/');
+      }
+      req.flash('success', 'Review deleted.');
+      return res.redirect(req.get('referer') || '/');
+    });
+  }
 };
 
 module.exports = ReviewController;
