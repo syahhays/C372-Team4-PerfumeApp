@@ -1,0 +1,10 @@
+/* Star rating styles */
+.star-rating { display: inline-flex; gap: 4px; align-items: center; flex-direction: row-reverse; }
+.star-rating input { display: none; }
+.star-rating label { cursor: pointer; font-size: 1.25rem; color: #ddd; transition: color .12s ease; }
+.star-rating label:hover,
+.star-rating label:hover ~ label { color: #f39c12; }
+.star-rating input:checked ~ label { color: #f39c12; }
+.star-rating label.selected { color: #f39c12; }
+
+/* Note: include this CSS inside the <head> of perfume.ejs */
