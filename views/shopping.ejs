@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <title>YourScent.co - Perfumes</title>
+    <style>
+        /* Hover effect for cards */
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+    .card {
+      transition: all 0.3s ease;
+    }
+    .card img {
+      height: 200px;
+      object-fit: contain;
+    }
+    body {
+      background: #f7f8fb;
+      color: #1a1a1a;
+    }
+    .gender-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #f2e9ff;
+      color: #7c00ff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .price-tag {
+      color: #7c00ff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+    .stock-pill {
+      background: #f2f2f2;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #222;
+      margin: 0;
+      display: inline-block;
+    }
+    .price-stock-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 12px 0;
+    }
+    .action-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .card-body {
+      display: flex;
+      flex-direction: column;
+    }
+    .card-body .card-title,
+    .card-body .card-text {
+      margin-bottom: 8px;
+    }
+    .card-body .description {
+      min-height: 72px;
+    }
+    .card-body .spacer {
+      flex: 1 1 auto;
+    }
+    .btn-outline-soft {
+      border: 1px solid #e3e3e3;
+      color: #1a1a1a;
+      background: #fff;
+    }
+    .btn-outline-soft:hover {
+      border-color: #7c00ff;
+      color: #7c00ff;
+      background: #f7edff;
+    }
+    .btn-primary-soft {
+      background: #a000ff;
+      border: none;
+    }
+    .btn-primary-soft:hover {
+      background: #8900d8;
+    }
+    .btn-danger-soft {
+      background: #ffecec;
+      color: #c1121f;
+      border: 1px solid #ffd4d4;
+    }
+    .btn-danger-soft:hover {
+      background: #ffc9c9;
+      color: #9c0f19;
+    }
+    .filters {
+      gap: 12px;
+    }
+    .hidden {
+      display: none !important;
+    }
+    </style>
+</head>
+<body>
+    <%- include('partials/customerNavbar') %>
+
+    <div class="container mt-5 mb-5">
+        <div class="text-center mb-3"><h2>Our Perfume Collection!</h2></div>
+
+        <div class="row g-2 mb-4 filters">
+            <div class="col-12 col-md-6">
+                <input id="searchInput" type="text" class="form-control" placeholder="Search products by name or description..." />
+            </div>
+            <div class="action-row">
+                <div class="col-6 col-md-3">
+                    <select id="genderFilter" class="form-select">
+                        <option value="">All Genders</option>
+                        <option value="men">Men</option>
+                        <option value="women">Women</option>
+                        <option value="unisex">Unisex</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <select id="noteFilter" class="form-select">
+                        <option value="">All Notes</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row g-4" id="perfumeGrid">
+            <% perfumes.forEach((p) => { %>
+                <% const noteList = (p.perfumeNotes || '').split(',').map(n => n.trim()).filter(Boolean); %>
+                <div class="col-sm-6 col-md-4 col-lg-3 perfume-card"
+                     data-name="<%= p.perfumeName.toLowerCase() %>"
+                     data-description="<%= (p.perfumeDescription || '').toLowerCase() %>"
+                     data-gender="<%= (p.gender || '').toLowerCase() %>"
+                     data-notes="<%= noteList.map(n => n.toLowerCase()).join('|') %>">
+                    <div class="card h-100 text-center shadow-sm position-relative">
+                        <% if (p.gender) { %>
+                          <span class="gender-badge"><%= p.gender %></span>
+                        <% } %>
+                        <img src="/images/<%= p.image %>" class="card-img-top" alt="<%= p.perfumeName %>">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <p><%= p.perfumeName %></p>
+                            </h5>
+                            <p class="card-text description"><%= p.perfumeDescription %></p>
+                            <div class="price-stock-row">
+                                <p class="price-tag">$<%= Number(p.price || 0).toFixed(2) %></p>
+                                <p class="stock-pill"><%= p.quantity %> in stock</p>
+                            </div>
+                            <div class="spacer"></div>
+                            <div class="action-row">
+                                <a href="/perfume/<%= p.perfumeId %>" class="btn btn-outline-soft w-50">Details</a>
+                                <a href="/addtocart/<%= p.perfumeId %>" class="btn btn-primary-soft w-50 text-white"><i class="fa fa-shopping-cart"></i>Add</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>  
+    </div>
+
+    <script>
+      (function() {
+        const searchInput = document.getElementById('searchInput');
+        const genderFilter = document.getElementById('genderFilter');
+        const noteFilter = document.getElementById('noteFilter');
+        const cards = Array.from(document.querySelectorAll('.perfume-card'));
+
+        // populate note dropdown
+        const noteSet = new Set();
+        cards.forEach(card => {
+          const notes = (card.dataset.notes || '').split('|').filter(Boolean);
+          notes.forEach(n => noteSet.add(n));
+        });
+        Array.from(noteSet).sort().forEach(n => {
+          const opt = document.createElement('option');
+          opt.value = n;
+          opt.textContent = n.charAt(0).toUpperCase() + n.slice(1);
+          noteFilter.appendChild(opt);
+        });
+
+        const applyFilters = () => {
+          const term = (searchInput.value || '').toLowerCase().trim();
+          const gender = (genderFilter.value || '').toLowerCase();
+          const note = (noteFilter.value || '').toLowerCase();
+
+          cards.forEach(card => {
+            const name = card.dataset.name || '';
+            const desc = card.dataset.description || '';
+            const g = card.dataset.gender || '';
+            const notes = (card.dataset.notes || '').split('|');
+
+            const matchesSearch = !term || name.includes(term) || desc.includes(term);
+            const matchesGender = !gender || g === gender;
+            const matchesNote = !note || notes.includes(note);
+
+            card.classList.toggle('hidden', !(matchesSearch && matchesGender && matchesNote));
+          });
+        };
+
+        searchInput.addEventListener('input', applyFilters);
+        genderFilter.addEventListener('change', applyFilters);
+        noteFilter.addEventListener('change', applyFilters);
+      })();
+    </script>
+</body>
+</html>
