@@ -1,8 +1,8 @@
+// models/Wishlist.js
 const db = require('../db');
-
 exports.getWishlistByUserId = (userId, callback) => {
   const sql = `
-    SELECT w.id AS wishlistId,
+    SELECT w.wishlistId,
            p.perfumeId, p.perfumeName, p.price, p.image
     FROM wishlist w
     JOIN perfumes p ON w.perfumeId = p.perfumeId
@@ -20,4 +20,3 @@ exports.removeFromWishlist = (userId, perfumeId, callback) => {
   const sql = 'DELETE FROM wishlist WHERE userId = ? AND perfumeId = ?';
   db.query(sql, [userId, perfumeId], callback);
 };
-

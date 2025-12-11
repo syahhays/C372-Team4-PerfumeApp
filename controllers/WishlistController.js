@@ -2,19 +2,23 @@ const Wishlist = require('../models/Wishlist');
 
 const WishlistController = {
   getWishlist: (req, res) => {
-    const userId = req.session.user.id;
+    if (!req.session.user) return res.redirect('/login');   // guard
+
+    const userId = req.session.user.userId;
 
     Wishlist.getWishlistByUserId(userId, (err, items) => {
       if (err) {
         console.error(err);
         return res.send('Error loading wishlist');
       }
-      res.render('wishlist', { items, user: req.session.user });
+      res.render('wishlist', { items });
     });
   },
 
   addToWishlist: (req, res) => {
-    const userId = req.session.user.id;
+    if (!req.session.user) return res.redirect('/login');
+
+    const userId = req.session.user.userId;
     const perfumeId = req.params.id;
 
     Wishlist.addToWishlist(userId, perfumeId, (err) => {
@@ -24,7 +28,9 @@ const WishlistController = {
   },
 
   removeFromWishlist: (req, res) => {
-    const userId =  req.session.user.id;
+    if (!req.session.user) return res.redirect('/login');
+
+    const userId = req.session.user.userId;
     const perfumeId = req.params.id;
 
     Wishlist.removeFromWishlist(userId, perfumeId, (err) => {
@@ -34,18 +40,7 @@ const WishlistController = {
   },
 
   moveToCart: (req, res) => {
-//     const userId = req.session.user.id;
-//     const perfumeId = req.params.id;
-
-//     Cart.addOrIncreaseCartItem(userId, perfumeId, (err) => {
-//       if (err) console.error(err);
-//       Wishlist.removeFromWishlist(userId, perfumeId, () => {
-//         res.redirect('/cart');
-//       });
-//     });
-//   }
-// }; //will add in after cart is done
-  return res.send('Move to cart not implemented yet');
+    return res.send('Move to cart not implemented yet');
   }
 };
 

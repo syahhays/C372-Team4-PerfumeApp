@@ -4,10 +4,14 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const multer = require('multer');
 const PerfumeController = require('./controllers/PerfumeController');
-
 const WishlistController = require('./controllers/WishlistController');
-const app = express();
 
+//for login checks and admin role checks
+const { checkAuthenticated, checkAuthorised } = require('./middleware');
+const UserController = require('./controllers/UserController');
+const { render } = require('ejs');
+
+const app = express();
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -20,7 +24,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-
 // Set up view engine
 app.set('view engine', 'ejs');
 // enable static files
@@ -28,7 +31,6 @@ app.use(express.static('public'));
 // enable form processing
 app.use(express.urlencoded({ extended: true })); // parse form POST bodies
 app.use(express.json());
-
 
 // Session & flash
 app.use(session({
@@ -38,7 +40,14 @@ app.use(session({
     // Session expires after 1 week of inactivity
     cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }
 }));
-//app.use(flash());
+
+app.use(flash());
+
+app.use((req, res, next) => {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    next();
+});
 
 
 // Make session user available in all views
@@ -52,47 +61,59 @@ app.use(session({
 //     next();
 // });
 
-
-// --------------------- Routes  ---------------------
+// --------------------- Product Routes  ---------------------
 // Home
 app.get('/', (req, res) => {
     res.render('homepage');
 });
 
-
 // Inventory page (displays all products for admin - Edit, delete, add)
-app.get('/inventory', PerfumeController.getAllPerfumes);
-
+app.get('/inventory',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.getAllPerfumes);
 
 // Add new perfume
-app.get('/addPerfume', PerfumeController.renderAddPerfume);
-app.post('/addPerfume', PerfumeController.addPerfume);
-
-
+app.get('/addPerfume',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.renderAddPerfume);
+app.post('/addPerfume',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.addPerfume);
 // Update/Edit existing perfume
-app.get('/editPerfume/:id', PerfumeController.renderEditPerfume);
-app.post('/editPerfume/:id', PerfumeController.updatePerfume);
-
+app.get('/editPerfume/:id',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.renderEditPerfume);
+app.post('/editPerfume/:id',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.updatePerfume);
 
 // Delete perfume
-app.get('/deletePerfume/:id', PerfumeController.deletePerfume);
-app.post('/perfumes/:id/delete', PerfumeController.deletePerfume);
-
-
+app.get('/deletePerfume/:id',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.deletePerfume);
+app.post('/perfumes/:id/delete',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.deletePerfume);
 // Shopping page (displays all products for customers)
 app.get('/shopping', PerfumeController.getAllPerfumesShopping);
-
 
 // View individual perfume details
 app.get('/perfumes', PerfumeController.getAllPerfumes);
 app.get('/perfume/:id', PerfumeController.getPerfumeById);
+// --------------------- User Routes --------------------------
+app.get('/register', (req, res) => {
+    res.render('register');
+});
+app.post('/register', UserController.registerUser);
 
-// --------------------- WISHLIST ---------------------
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+app.post('/login', UserController.loginUser);
+
+app.get('/logout', UserController.logout);
+
+// User Profile
+app.get('/profile', checkAuthenticated, UserController.getUserProfile);
+
+// Edit Profile
+app.get('/editProfile', checkAuthenticated, UserController.getEditProfile);
+
+app.post('/editProfile', checkAuthenticated, UserController.editUserProfile);
+// --------------------- Wishlist Routes --------------------------
 app.get('/wishlist', WishlistController.getWishlist);
-app.post('/wishlist/add/:id', WishlistController.addToWishlist);
-app.post('/wishlist/remove/:id', WishlistController.removeFromWishlist);
-app.post('/wishlist/move-to-cart/:id', WishlistController.moveToCart);
 
+app.post('/wishlist/add/:id', WishlistController.addToWishlist);
+
+app.post('/wishlist/remove/:id', WishlistController.removeFromWishlist);
+
+app.post('/wishlist/move-to-cart/:id', WishlistController.moveToCart);
 
 // --------------------- Start the server ---------------------
 const PORT = process.env.PORT || 3000;
