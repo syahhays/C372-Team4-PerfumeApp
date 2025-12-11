@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voucher List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <%- include('partials/adminNavbar'); %>
+
+    <div class="container mt-4">
+        <h2 class="mb-4">Voucher List</h2>
+
+        <a href="/vouchers/add" class="btn btn-primary mb-3">Add New Voucher</a>
+
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Value</th>
+                    <th>Expiry</th>
+                    <th>Usage</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <% vouchers.forEach(v => { %>
+                    <tr>
+                        <td><%= v.code %></td>
+                        <td><%= v.description %></td>
+                        <td><%= v.discountType %></td>
+                        <td>
+                            <% if (v.discountType === 'percentage') { %>
+                                <%= v.discountValue %>%
+                            <% } else { %>
+                                $<%= v.discountValue %>
+                            <% } %>
+                        </td>
+                        <td><%= new Date(v.expiryDate).toISOString().slice(0,10) %></td>
+                        <td><%= v.usageCount %> / <%= v.usageLimit %></td>
+
+                        <td>
+                            <a href="/vouchers/edit/<%= v.voucherID %>" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="/vouchers/delete/<%= v.voucherID %>" class="btn btn-danger btn-sm"
+                               onclick="return confirm('Delete this voucher?')">Delete</a>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+    </div>
+
+</body>
+</html>

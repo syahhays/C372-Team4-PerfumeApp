@@ -1,21 +1,24 @@
-// --------------------- SET UP S---------------------
+// --------------------- SET UP ---------------------
 const express = require('express');
 const session = require('express-session');
 const flash = require('connect-flash');
 const multer = require('multer');
-const PerfumeController = require('./controllers/PerfumeController');
 
-//for login checks and admin role checks
-const { checkAuthenticated, checkAuthorised } = require('./middleware');
+// Controllers
+const PerfumeController = require('./controllers/PerfumeController');
 const UserController = require('./controllers/UserController');
+const VoucherController = require('./controllers/VoucherController');
+
+// Middleware
+const { checkAuthenticated, checkAuthorised } = require('./middleware');
 const { render } = require('ejs');
 
 const app = express();
 
-// Set up multer for file uploads
+// --------------------- MULTER (IMAGE UPLOAD) ---------------------
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'public/images'); // Directory to save uploaded files
+        cb(null, 'public/images');
     },
     filename: (req, file, cb) => {
         cb(null, file.originalname);
@@ -23,21 +26,18 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Set up view engine
+// --------------------- VIEW ENGINE + STATIC FILES ---------------------
 app.set('view engine', 'ejs');
-// enable static files
 app.use(express.static('public'));
-// enable form processing
-app.use(express.urlencoded({ extended: true })); // parse form POST bodies
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Session & flash
+// --------------------- SESSION + FLASH ---------------------
 app.use(session({
     secret: 'secret',
     resave: false,
     saveUninitialized: true,
-    // Session expires after 1 week of inactivity
-    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 }
+    cookie: { maxAge: 1000 * 60 * 60 * 24 * 7 } // 1 week
 }));
 
 app.use(flash());
@@ -48,66 +48,60 @@ app.use((req, res, next) => {
     next();
 });
 
-
-// Make session user available in all views
-// app.use((req, res, next) => {
-//     res.locals.user = req.session.user || null;
-//     // expose specific flash arrays so views can use `errors` or `success`
-//     res.locals.errors = req.flash('error') || [];
-//     res.locals.success = req.flash('success') || [];
-//     // keep a messages object for backwards compatibility
-//     res.locals.messages = { error: res.locals.errors, success: res.locals.success };
-//     next();
-// });
-
-// --------------------- Product Routes  ---------------------
-// Home
+// --------------------- HOME ---------------------
 app.get('/', (req, res) => {
     res.render('homepage');
 });
 
-// Inventory page (displays all products for admin - Edit, delete, add)
-app.get('/inventory',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.getAllPerfumes);
+// --------------------- PRODUCT ROUTES ---------------------
+app.get('/inventory', checkAuthenticated, checkAuthorised(['admin']), PerfumeController.getAllPerfumes);
 
-// Add new perfume
-app.get('/addPerfume',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.renderAddPerfume);
-app.post('/addPerfume',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.addPerfume);
-// Update/Edit existing perfume
-app.get('/editPerfume/:id',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.renderEditPerfume);
-app.post('/editPerfume/:id',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.updatePerfume);
+// Add Perfume
+app.get('/addPerfume', checkAuthenticated, checkAuthorised(['admin']), PerfumeController.renderAddPerfume);
+app.post('/addPerfume', checkAuthenticated, checkAuthorised(['admin']), PerfumeController.addPerfume);
 
-// Delete perfume
-app.get('/deletePerfume/:id',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.deletePerfume);
-app.post('/perfumes/:id/delete',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.deletePerfume);
-// Shopping page (displays all products for customers)
+// Edit Perfume
+app.get('/editPerfume/:id', checkAuthenticated, checkAuthorised(['admin']), PerfumeController.renderEditPerfume);
+app.post('/editPerfume/:id', checkAuthenticated, checkAuthorised(['admin']), PerfumeController.updatePerfume);
+
+// Delete Perfume
+app.get('/deletePerfume/:id', checkAuthenticated, checkAuthorised(['admin']), PerfumeController.deletePerfume);
+app.post('/perfumes/:id/delete', checkAuthenticated, checkAuthorised(['admin']), PerfumeController.deletePerfume);
+
+// Shopping Page
 app.get('/shopping', PerfumeController.getAllPerfumesShopping);
 
-// View individual perfume details
+// View Perfume Details
 app.get('/perfumes', PerfumeController.getAllPerfumes);
 app.get('/perfume/:id', PerfumeController.getPerfumeById);
-// --------------------- User Routes --------------------------
-app.get('/register', (req, res) => {
-    res.render('register');
-});
+
+// --------------------- USER ROUTES ---------------------
+app.get('/register', (req, res) => res.render('register'));
 app.post('/register', UserController.registerUser);
 
-app.get('/login', (req, res) => {
-    res.render('login');
-});
+app.get('/login', (req, res) => res.render('login'));
 app.post('/login', UserController.loginUser);
 
 app.get('/logout', UserController.logout);
 
-// User Profile
+// Profile + Edit Profile
 app.get('/profile', checkAuthenticated, UserController.getUserProfile);
-
-// Edit Profile
 app.get('/editProfile', checkAuthenticated, UserController.getEditProfile);
-
 app.post('/editProfile', checkAuthenticated, UserController.editUserProfile);
 
-// --------------------- Start the server ---------------------
+// --------------------- VOUCHER ROUTES  ---------------------
+app.get('/vouchers', checkAuthenticated, checkAuthorised(['admin']), VoucherController.list);
+
+app.get('/vouchers/add', checkAuthenticated, checkAuthorised(['admin']), VoucherController.showAddForm);
+app.post('/vouchers/add', checkAuthenticated, checkAuthorised(['admin']), VoucherController.add);
+
+app.get('/vouchers/edit/:id', checkAuthenticated, checkAuthorised(['admin']), VoucherController.showEditForm);
+app.post('/vouchers/edit/:id', checkAuthenticated, checkAuthorised(['admin']), VoucherController.update);
+
+app.get('/vouchers/delete/:id', checkAuthenticated, checkAuthorised(['admin']), VoucherController.delete);
+
+// --------------------- START SERVER ---------------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port http://localhost:${PORT}`);
+    console.log(`Server is running at http://localhost:${PORT}`);
 });
