@@ -6,6 +6,7 @@ const multer = require('multer');
 const PerfumeController = require('./controllers/PerfumeController');
 const UserController = require('./controllers/UserController');
 const ReviewController = require('./controllers/ReviewController');
+const VoucherController = require('./controllers/VoucherController');
 
 //for login checks and admin role checks
 const { checkAuthenticated, checkAuthorised } = require('./middleware');
@@ -116,6 +117,20 @@ app.get('/myreviews', checkAuthenticated, ReviewController.getUserReviews);
 
 // Admin-only: delete a review
 app.post('/review/:id/delete', checkAuthenticated, checkAuthorised(['admin']), ReviewController.deleteReview);
+
+// --------------------- VOUCHER ROUTES  ---------------------
+app.get('/vouchers', checkAuthenticated, checkAuthorised(['admin']), VoucherController.list);
+
+app.get('/vouchers/add', checkAuthenticated, checkAuthorised(['admin']), VoucherController.showAddForm);
+app.post('/vouchers/add', checkAuthenticated, checkAuthorised(['admin']), VoucherController.add);
+
+app.get('/vouchers/edit/:id', checkAuthenticated, checkAuthorised(['admin']), VoucherController.showEditForm);
+app.post('/vouchers/edit/:id', checkAuthenticated, checkAuthorised(['admin']), VoucherController.update);
+
+app.get('/vouchers/delete/:id', checkAuthenticated, checkAuthorised(['admin']), VoucherController.delete);
+
+
+
 // --------------------- Start the server ---------------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

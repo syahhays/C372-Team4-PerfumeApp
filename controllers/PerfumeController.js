@@ -37,7 +37,6 @@ const PerfumeController = {
         if (err) {
           return res.status(500).send('Failed to load reviews.');
         }
-        console.log(reviews);
         res.render('perfume', { perfume, reviews });
       }); 
     });
