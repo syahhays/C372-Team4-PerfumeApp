@@ -1,4 +1,5 @@
 const Perfume = require('../models/Perfume');
+const Review = require('../models/Review');
 
 const PerfumeController = {
   getAllPerfumes: (req, res) => {
@@ -32,7 +33,13 @@ const PerfumeController = {
       if (!perfume) {
         return res.status(404).send('Perfume not found.');
       }
-      res.render('perfume', { perfume });
+      Review.getReviewsByPerfume(id, (err, reviews) => {
+        if (err) {
+          return res.status(500).send('Failed to load reviews.');
+        }
+        console.log(reviews);
+        res.render('perfume', { perfume, reviews });
+      }); 
     });
   },
 

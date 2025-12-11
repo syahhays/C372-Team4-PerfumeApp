@@ -9,13 +9,26 @@
         <ul class="navbar-nav ms-auto">
             <li class="nav-item">
                 <a class="nav-link" href="/shopping">Shopping</a>
-            </li> 
-            <li class="nav-item">
-                <a class="nav-link" href="/logout">Logout</a>
-            </li> 
-            <li class="nav-item">
-                <a class="nav-link" href="/profile">Profile</a>
-            </li> 
+            </li>
+            <% if (!user) { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/login">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/register">Register</a>
+                </li>
+            <% } %>
+            <% if (user) { %>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li> 
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/myreviews">My Reviews</a>
+                </li>
+            <% } %>
         </ul>
         </div>
     </div>

@@ -105,11 +105,22 @@
       border-color: #a000ff;
       box-shadow: 0 4px 10px rgba(160, 0, 255, 0.15);
     }
+    .star-rating { display: inline-flex; gap: 4px; align-items: center; flex-direction: row-reverse; }
+    .star-rating input { display: none; }
+    .star-rating label { cursor: pointer; font-size: 1.25rem; color: #ddd; transition: color .12s ease; }
+    .star-rating label:hover,
+    .star-rating label:hover ~ label { color: #f39c12; }
+    .star-rating input:checked ~ label { color: #f39c12; }
+    .star-rating label.selected { color: #f39c12; }
   </style>
 </head>
 <body>
   <div class="page">
-    <a class="breadcrumb-link" href="/perfumes">&#8592; Back to Products</a>
+    <% if (user && user.role === 'admin') { %>
+      <a class="breadcrumb-link" href="/inventory">&#8592; Back to Products</a>
+    <% } else { %>
+      <a class="breadcrumb-link" href="/shopping">&#8592; Back to Products</a>
+    <% } %>
     <div class="hero-card">
       <div class="row g-4">
         <div class="col-lg-6 img-panel">
@@ -150,6 +161,62 @@
             <button type="button" class="cta-btn">Add to Cart</button>
           </form>
         </div>
+        <% if (user) { %>
+          <div class="mt-3">
+            <h6>Leave a review</h6>
+            <form method="POST" action="/perfume/<%= perfume.perfumeId %>/review">
+              <div class="mb-2">
+                <label class="form-label">Rating</label>
+                <div class="star-rating" role="radiogroup" aria-label="Rating">
+                  <input type="radio" id="star5" name="rating" value="5" checked />
+                  <label for="star5" title="5 stars">★</label>
+                  <input type="radio" id="star4" name="rating" value="4" />
+                  <label for="star4" title="4 stars">★</label>
+                  <input type="radio" id="star3" name="rating" value="3" />
+                  <label for="star3" title="3 stars">★</label>
+                  <input type="radio" id="star2" name="rating" value="2" />
+                  <label for="star2" title="2 stars">★</label>
+                  <input type="radio" id="star1" name="rating" value="1" />
+                  <label for="star1" title="1 star">★</label>
+                </div>
+              </div>
+              <div class="mb-2">
+                <label for="comment" class="form-label">Comment</label>
+                <textarea id="comment" name="comment" class="form-control" rows="3" placeholder="Share your thoughts..."></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+          </div>
+        <% } else { %>
+          <div class="mt-3 text-muted">Please <a href="/login">log in</a> to leave a review.</div>
+        <% } %>
+        <div class="mt-4">
+          <h5>Reviews</h5>
+            <% const revs = typeof reviews !== 'undefined' ? reviews : []; %>
+            <% if (revs.length === 0) { %>
+              <p class="text-muted">No reviews yet. Be the first to review!</p>
+            <% } else { %>
+              <% revs.forEach(r => { %>
+                <div class="border rounded p-2 mb-2">
+                  <div class="d-flex align-items-start">
+                    <div style="font-weight:700"><%= r.username %></div>
+                    <div class="ms-3 text-warning" style="font-weight:700">⭐ <%= r.rating %>/5</div>
+                    <div class="ms-auto text-muted" style="font-size:0.85rem"><%= new Date(r.created_at).toLocaleDateString() %></div>
+                  </div>
+                  <% if (r.comment) { %>
+                    <div class="mt-2"><%= r.comment %></div>
+                  <% } %>
+                  <% if (user && user.role === 'admin') { %>
+                    <div class="mt-2 text-end">
+                      <form method="POST" action="/review/<%= r.reviewId %>/delete" onsubmit="return confirm('Delete this review?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                      </form>
+                    </div>
+                  <% } %>
+                </div>
+              <% }) %>
+            <% } %>
+          </div>
       </div>
     </div>
   </div>
