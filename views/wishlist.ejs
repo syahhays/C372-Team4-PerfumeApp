@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <title>YourScent.co - Perfumes</title>
+  <style>
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+    .card {
+      transition: all 0.3s ease;
+    }
+    .card img {
+      height: 200px;
+      object-fit: contain;
+    }
+    body {
+      background: #f7f8fb;
+      color: #1a1a1a;
+    }
+    .gender-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #f2e9ff;
+      color: #7c00ff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .price-tag {
+      color: #7c00ff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+    .stock-pill {
+      background: #f2f2f2;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #222;
+      margin: 0;
+      display: inline-block;
+    }
+    .price-stock-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 12px 0;
+    }
+    .action-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .card-body {
+      display: flex;
+      flex-direction: column;
+    }
+    .card-body .card-title,
+    .card-body .card-text {
+      margin-bottom: 8px;
+    }
+    .card-body .description {
+      min-height: 72px;
+    }
+    .card-body .spacer {
+      flex: 1 1 auto;
+    }
+    .btn-outline-soft {
+      border: 1px solid #e3e3e3;
+      color: #1a1a1a;
+      background: #fff;
+    }
+    .btn-outline-soft:hover {
+      border-color: #7c00ff;
+      color: #7c00ff;
+      background: #f7edff;
+    }
+    .btn-primary-soft {
+      background: #a000ff;
+      border: none;
+    }
+    .btn-primary-soft:hover {
+      background: #8900d8;
+    }
+    .filters {
+      gap: 12px;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('partials/customerNavbar') %>
+
+  <div class="container mt-5 mb-5">
+    <div class="text-center mb-3">
+      <h2>My Wishlist</h2>
+    </div>
+
+    <% if (!items || items.length === 0) { %>
+      <p>Your wishlist is empty.</p>
+    <% } else { %>
+      <div class="row g-3">
+        <% items.forEach(item => { %>
+          <div class="col-md-4">
+            <div class="card h-100">
+              <img src="/images/<%= item.image %>" class="card-img-top" alt="<%= item.perfumeName %>">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title"><%= item.perfumeName %></h5>
+                <p class="card-text fw-bold">$<%= item.price %></p>
+
+                <div class="mt-auto d-flex justify-content-between">
+                  <form action="/wishlist/move-to-cart/<%= item.perfumeId %>" method="post">
+                    <button type="submit" class="btn btn-primary btn-sm">Move to Cart</button>
+                  </form>
+
+                  <form action="/wishlist/remove/<%= item.perfumeId %>" method="post">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</body>
+
