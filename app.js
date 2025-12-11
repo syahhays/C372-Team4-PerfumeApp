@@ -7,6 +7,7 @@ const PerfumeController = require('./controllers/PerfumeController');
 const UserController = require('./controllers/UserController');
 const ReviewController = require('./controllers/ReviewController');
 const VoucherController = require('./controllers/VoucherController');
+const CartController = require('./controllers/CartController');
 
 //for login checks and admin role checks
 const { checkAuthenticated, checkAuthorised } = require('./middleware');
@@ -106,6 +107,13 @@ app.get('/profile', checkAuthenticated, UserController.getUserProfile);
 app.get('/editProfile', checkAuthenticated, UserController.getEditProfile);
 
 app.post('/editProfile', checkAuthenticated, UserController.editUserProfile);
+
+// --------------------- Cart Routes ------------------------
+app.get('/cart', checkAuthenticated, CartController.viewCart);
+app.get('/addtocart/:id', checkAuthenticated, CartController.addToCart);
+app.post('/cart/add/:id', checkAuthenticated, CartController.addToCart);
+app.post('/cart/update/:cartId', checkAuthenticated, CartController.updateCartItem);
+app.post('/cart/remove/:cartId', checkAuthenticated, CartController.removeCartItem);
 
 // --------------------- Review Routes --------------------------
 // Routes added for reviews

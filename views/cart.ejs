@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YourScent.co - Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f7f8fb;
+            color: #1a1a1a;
+        }
+        .page-title {
+            font-weight: 700;
+        }
+        .cart-card {
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            background: #fff;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+        .cart-item {
+            border-radius: 14px;
+            padding: 12px;
+            border: 1px solid #eef0f4;
+            transition: all 0.2s ease;
+        }
+        .cart-item:hover {
+            border-color: #d8c6ff;
+            box-shadow: 0 10px 20px rgba(160, 0, 255, 0.08);
+        }
+        .qty-input {
+            width: 90px;
+        }
+        .pill {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #eef0f4;
+            font-size: 0.8rem;
+            margin-right: 6px;
+        }
+        .btn-primary-soft {
+            background: #a000ff;
+            border: none;
+        }
+        .btn-primary-soft:hover {
+            background: #8900d8;
+        }
+        .btn-danger-soft {
+            background: #ffecec;
+            color: #c1121f;
+            border: 1px solid #ffd4d4;
+        }
+        .btn-danger-soft:hover {
+            background: #ffc9c9;
+            color: #9c0f19;
+        }
+        .order-summary {
+            border-radius: 18px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/customerNavbar') %>
+
+    <div class="container mt-5 mb-5">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+            <div>
+                <h2 class="page-title mb-1">Your Cart</h2>
+                <p class="text-muted mb-0">Review your favourite scents before checkout.</p>
+            </div>
+            <a href="/shopping" class="btn btn-outline-dark mt-3 mt-md-0">Continue Shopping</a>
+        </div>
+
+        <% if (success && success.length > 0) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (error && error.length > 0) { %>
+            <div class="alert alert-danger"><%= error %></div>
+        <% } %>
+
+        <% if (!cartItems || cartItems.length === 0) { %>
+            <div class="empty-state">
+                <h4 class="mb-3">Your cart is empty</h4>
+                <p class="text-muted mb-4">Start exploring our collection and add perfumes you love.</p>
+                <a href="/shopping" class="btn btn-primary-soft text-white px-4">Browse Perfumes</a>
+            </div>
+        <% } else { %>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <% cartItems.forEach((item) => { %>
+                        <div class="cart-card">
+                            <div class="row g-3 align-items-center cart-item">
+                                <div class="col-4 col-md-3 col-lg-2">
+                                    <img src="/images/<%= item.image %>" alt="<%= item.perfumeName %>" class="img-fluid rounded">
+                                </div>
+                                <div class="col">
+                                    <h5 class="mb-1"><%= item.perfumeName %></h5>
+                                    <p class="text-muted mb-1">$<%= Number(item.price || 0).toFixed(2) %> each</p>
+                                    <% if (item.perfumeDescription) { %>
+                                        <p class="text-muted small mb-2"><%= item.perfumeDescription.substring(0, 80) %><%= item.perfumeDescription.length > 80 ? '...' : '' %></p>
+                                    <% } %>
+                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                        <form class="d-flex align-items-center gap-2" action="/cart/update/<%= item.cartId %>" method="POST">
+                                            <input type="number" name="quantity" class="form-control form-control-sm qty-input" min="1" value="<%= item.quantity %>">
+                                            <button class="btn btn-primary-soft btn-sm text-white" type="submit">Update</button>
+                                        </form>
+                                        <form action="/cart/remove/<%= item.cartId %>" method="POST" onsubmit="return confirm('Remove this item from your cart?');">
+                                            <button class="btn btn-danger-soft btn-sm" type="submit">Remove</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-auto text-md-end">
+                                    <div class="fw-semibold fs-5">$<%= Number(item.lineTotal || 0).toFixed(2) %></div>
+                                    <div class="text-muted small">Subtotal</div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card order-summary">
+                        <div class="card-body">
+                            <h5 class="card-title">Order Summary</h5>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Items (<%= cartItems.length %>)</span>
+                                <span>$<%= Number(cartTotal || 0).toFixed(2) %></span>
+                            </div>
+                            <div class="d-flex justify-content-between fw-semibold border-top pt-3">
+                                <span>Total</span>
+                                <span>$<%= Number(cartTotal || 0).toFixed(2) %></span>
+                            </div>
+                            <a class="btn btn-primary-soft text-white w-100 mt-3" href="/checkout">Proceed to Checkout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>
