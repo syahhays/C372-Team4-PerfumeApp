@@ -162,6 +162,11 @@
                             <div class="spacer"></div>
                             <div class="action-row">
                                 <a href="/perfume/<%= p.perfumeId %>" class="btn btn-outline-soft w-50">Details</a>
+                                  <form action="/wishlist/add/<%= p.perfumeId %>" method="post" class="w-50">
+                                    <button type="submit" class="btn btn-outline-soft w-100">
+                                      Wishlist
+                                    </button>
+                                  </form>
                                 <a href="/addtocart/<%= p.perfumeId %>" class="btn btn-primary-soft w-50 text-white"><i class="fa fa-shopping-cart"></i>Add</a>
                             </div>
                         </div>

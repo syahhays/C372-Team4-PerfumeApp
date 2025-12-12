@@ -8,6 +8,7 @@ const UserController = require('./controllers/UserController');
 const ReviewController = require('./controllers/ReviewController');
 const VoucherController = require('./controllers/VoucherController');
 const CartController = require('./controllers/CartController');
+const WishlistController = require('./controllers/WishlistController');
 
 //for login checks and admin role checks
 const { checkAuthenticated, checkAuthorised } = require('./middleware');
@@ -137,7 +138,14 @@ app.post('/vouchers/edit/:id', checkAuthenticated, checkAuthorised(['admin']), V
 
 app.get('/vouchers/delete/:id', checkAuthenticated, checkAuthorised(['admin']), VoucherController.delete);
 
+// --------------------- Wishlist Routes --------------------------
+app.get('/wishlist', WishlistController.getWishlist);
 
+app.post('/wishlist/add/:id', WishlistController.addToWishlist);
+
+app.post('/wishlist/remove/:id', WishlistController.removeFromWishlist);
+
+app.post('/wishlist/move-to-cart/:id', WishlistController.moveToCart);
 
 // --------------------- Start the server ---------------------
 const PORT = process.env.PORT || 3000;
