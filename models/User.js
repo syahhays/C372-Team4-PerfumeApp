@@ -9,12 +9,12 @@ User = {
             if (results.length > 0) {
                 return callback(new Error('Username or email already exists'));
             } else {
-                const sql = 'INSERT INTO users (username, password, email, contact) VALUES (?, ?, ?, ?)';
+                const sql = 'INSERT INTO users (username, password, email, contact, createdAt) VALUES (?, ?, ?, ?, NOW())';
                 params = [
                     userdetails.username,
                     userdetails.password, 
                     userdetails.email, 
-                    userdetails.contact
+                    userdetails.contact,
                 ];
                 db.query(sql, params, (err, results) => {
                     if (err) return callback(err);
