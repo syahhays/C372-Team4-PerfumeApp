@@ -60,6 +60,24 @@ User = {
             callback(null, result);
         });
     },
+
+    getAll: (search, sort, callback) => {
+        search = search ? search.trim() : '';
+        sort = sort === 'asc' ? 'ASC' : 'DESC'; // default: newest first
+        let sql = `
+            SELECT userId, username, email, contact, role, banned, createdAt FROM users
+        `;
+        const params = [];
+        if (search) {
+            sql += ` WHERE username LIKE ?`;
+            params.push(`%${search}%`);
+        }
+        sql += ` ORDER BY createdAt ${sort}`;
+        db.query(sql, params, (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        });
+    },
 };
 
 module.exports = User;

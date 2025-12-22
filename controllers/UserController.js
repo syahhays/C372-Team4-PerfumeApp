@@ -42,7 +42,7 @@ const UserController = {
                 role: result.role,
             }
             req.flash('success', 'Login successful!');
-            if (result.role === 'admin') {
+            if (result.role === 'admin', 'headAdmin') {
                 return res.redirect('/inventory');
             } else {
                 return res.redirect('/');
@@ -100,6 +100,19 @@ const UserController = {
     },
 
     //--admin side--
+    getAll(req, res) {
+        const search = req.query.search || '';
+        const sort = req.query.sort || 'desc';
+
+        User.getAll(search, sort, (err, users) => {
+            if (err) {
+                console.log(err);
+                req.flash('error', 'Error fetching users.');
+                return res.redirect('/');
+            }
+            res.render('allUsers', { users, search, sort });
+        });
+    } 
 };
 
 module.exports = UserController;

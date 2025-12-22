@@ -70,18 +70,18 @@ app.get('/', (req, res) => {
 });
 
 // Inventory page (displays all products for admin - Edit, delete, add)
-app.get('/inventory',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.getAllPerfumes);
+app.get('/inventory',checkAuthenticated,checkAuthorised(['admin','headAdmin']), PerfumeController.getAllPerfumes);
 
 // Add new perfume
-app.get('/addPerfume',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.renderAddPerfume);
-app.post('/addPerfume',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.addPerfume);
+app.get('/addPerfume',checkAuthenticated,checkAuthorised(['admin','headAdmin']), PerfumeController.renderAddPerfume);
+app.post('/addPerfume',checkAuthenticated,checkAuthorised(['admin','headAdmin']), PerfumeController.addPerfume);
 // Update/Edit existing perfume
-app.get('/editPerfume/:id',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.renderEditPerfume);
-app.post('/editPerfume/:id',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.updatePerfume);
+app.get('/editPerfume/:id',checkAuthenticated,checkAuthorised(['admin','headAdmin']), PerfumeController.renderEditPerfume);
+app.post('/editPerfume/:id',checkAuthenticated,checkAuthorised(['admin','headAdmin']), PerfumeController.updatePerfume);
 
 // Delete perfume
-app.get('/deletePerfume/:id',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.deletePerfume);
-app.post('/perfumes/:id/delete',checkAuthenticated,checkAuthorised(['admin']), PerfumeController.deletePerfume);
+app.get('/deletePerfume/:id',checkAuthenticated,checkAuthorised(['admin','headAdmin']), PerfumeController.deletePerfume);
+app.post('/perfumes/:id/delete',checkAuthenticated,checkAuthorised(['admin','headAdmin']), PerfumeController.deletePerfume);
 // Shopping page (displays all products for customers)
 app.get('/shopping', PerfumeController.getAllPerfumesShopping);
 
@@ -109,6 +109,9 @@ app.get('/editProfile', checkAuthenticated, UserController.getEditProfile);
 
 app.post('/editProfile', checkAuthenticated, UserController.editUserProfile);
 
+// --admin side--
+app.get('/allUsers', checkAuthenticated, checkAuthorised(['admin','headAdmin']), UserController.getAll);
+
 // --------------------- Cart Routes ------------------------
 app.get('/cart', checkAuthenticated, CartController.viewCart);
 app.get('/addtocart/:id', checkAuthenticated, CartController.addToCart);
@@ -125,27 +128,27 @@ app.post('/perfume/:id/review', checkAuthenticated, ReviewController.addReview);
 app.get('/myreviews', checkAuthenticated, ReviewController.getUserReviews);
 
 // Admin-only: delete a review
-app.post('/review/:id/delete', checkAuthenticated, checkAuthorised(['admin']), ReviewController.deleteReview);
+app.post('/review/:id/delete', checkAuthenticated, checkAuthorised(['admin','headAdmin']), ReviewController.deleteReview);
 
 // --------------------- VOUCHER ROUTES  ---------------------
-app.get('/vouchers', checkAuthenticated, checkAuthorised(['admin']), VoucherController.list);
+app.get('/vouchers', checkAuthenticated, checkAuthorised(['admin','headAdmin']), VoucherController.list);
 
-app.get('/vouchers/add', checkAuthenticated, checkAuthorised(['admin']), VoucherController.showAddForm);
-app.post('/vouchers/add', checkAuthenticated, checkAuthorised(['admin']), VoucherController.add);
+app.get('/vouchers/add', checkAuthenticated, checkAuthorised(['admin','headAdmin']), VoucherController.showAddForm);
+app.post('/vouchers/add', checkAuthenticated, checkAuthorised(['admin','headAdmin']), VoucherController.add);
 
-app.get('/vouchers/edit/:id', checkAuthenticated, checkAuthorised(['admin']), VoucherController.showEditForm);
-app.post('/vouchers/edit/:id', checkAuthenticated, checkAuthorised(['admin']), VoucherController.update);
+app.get('/vouchers/edit/:id', checkAuthenticated, checkAuthorised(['admin','headAdmin']), VoucherController.showEditForm);
+app.post('/vouchers/edit/:id', checkAuthenticated, checkAuthorised(['admin','headAdmin']), VoucherController.update);
 
-app.get('/vouchers/delete/:id', checkAuthenticated, checkAuthorised(['admin']), VoucherController.delete);
+app.get('/vouchers/delete/:id', checkAuthenticated, checkAuthorised(['admin','headAdmin']), VoucherController.delete);
 
 // --------------------- Wishlist Routes --------------------------
-app.get('/wishlist', WishlistController.getWishlist);
+app.get('/wishlist',checkAuthenticated, WishlistController.getWishlist);
 
-app.post('/wishlist/add/:id', WishlistController.addToWishlist);
+app.post('/wishlist/add/:id',checkAuthenticated, WishlistController.addToWishlist);
 
-app.post('/wishlist/remove/:id', WishlistController.removeFromWishlist);
+app.post('/wishlist/remove/:id',checkAuthenticated, WishlistController.removeFromWishlist);
 
-app.post('/wishlist/move-to-cart/:id', WishlistController.moveToCart);
+app.post('/wishlist/move-to-cart/:id',checkAuthenticated, WishlistController.moveToCart);
 
 // --------------------- Start the server ---------------------
 const PORT = process.env.PORT || 3000;

@@ -14,6 +14,6 @@ const checkAuthorised = (roles = []) => {
         req.flash('error', 'You do not have permission to view this resource');
         return res.redirect('/');
     };
-};
+}
 
 module.exports = { checkAuthenticated, checkAuthorised };
