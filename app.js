@@ -112,6 +112,10 @@ app.post('/editProfile', checkAuthenticated, UserController.editUserProfile);
 // --admin side--
 app.get('/allUsers', checkAuthenticated, checkAuthorised(['admin','headAdmin']), UserController.getAll);
 
+app.get('/banUser/:userId', checkAuthenticated, checkAuthorised(['admin','headAdmin']), UserController.banUser);
+
+app.get('/unbanUser/:userId', checkAuthenticated, checkAuthorised(['admin','headAdmin']), UserController.unbanUser);
+
 // --------------------- Cart Routes ------------------------
 app.get('/cart', checkAuthenticated, CartController.viewCart);
 app.get('/addtocart/:id', checkAuthenticated, CartController.addToCart);

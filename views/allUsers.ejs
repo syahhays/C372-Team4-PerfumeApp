@@ -14,31 +14,36 @@
             color: #1a1a1a;
         }
 
-        .card {
-            transition: all 0.3s ease;
+        .table-container {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        table thead th {
+            background: #f2f4f8;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        table tbody tr:hover {
+            background: #f9f7ff;
         }
 
         .role-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
             background: #f2e9ff;
             color: #7c00ff;
             border-radius: 999px;
-            padding: 6px 12px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
             font-weight: 600;
-            font-size: 0.85rem;
         }
 
         .status-pill {
             border-radius: 999px;
-            padding: 6px 12px;
-            font-size: 0.85rem;
+            padding: 5px 10px;
+            font-size: 0.8rem;
             font-weight: 600;
             display: inline-block;
         }
@@ -71,29 +76,26 @@
             border: 1px solid #c8e4ff;
         }
 
-        .btn-edit-soft:hover {
-            background: #d6ecff;
-        }
-
         .btn-danger-soft {
             background: #ffecec;
             color: #c1121f;
             border: 1px solid #ffd4d4;
         }
 
-        .btn-danger-soft:hover {
-            background: #ffc9c9;
-        }
-
-        .action-row {
+        .action-btns {
             display: flex;
-            gap: 8px;
-            margin-top: 12px;
+            gap: 6px;
+            justify-content: center;
         }
     </style>
 </head>
 <body>
-
+<% if (success && success.length > 0) { %>
+    <div class="alert alert-success text-center"><%= success %></div>
+<% } %>
+<% if (error && error.length > 0) { %>
+    <div class="alert alert-danger text-center"><%= error %></div>
+<% } %>
 <%- include('partials/adminNavbar') %>
 
 <div class="container mt-5">
@@ -101,6 +103,7 @@
         <h2 class="mb-0">User Management (Admin)</h2>
         <small class="text-muted">View and manage all registered users</small>
     </div>
+
     <form class="row g-2 mb-4" method="GET" action="/allUsers">
         <div class="col-md-6">
             <input
@@ -122,58 +125,70 @@
             </select>
         </div>
         <div class="col-md-3">
-            <button type="submit" class="btn btn-primary-soft text-white w-100">
+            <button type="submit" class="btn btn-primary w-100">
                 Search & Sort
             </button>
         </div>
     </form>
-    <div class="row g-4">
-        <% users.forEach(user => { %>
-            <div class="col-sm-6 col-md-4 col-lg-3">
-                <div class="card h-100 shadow-sm position-relative">
 
-                    <span class="role-badge"><%= user.role %></span>
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table align-middle table-borderless">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach(user => { %>
+                        <tr>
+                            <td><strong><%= user.username %></strong></td>
+                            <td class="text-muted"><%= user.email %></td>
+                            <td><%= user.contact || 'No contact' %></td>
+                            <td>
+                                <span class="role-badge"><%= user.role %></span>
+                            </td>
+                            <td>
+                                <% if (user.banned) { %>
+                                    <span class="status-pill status-banned">Banned</span>
+                                <% } else { %>
+                                    <span class="status-pill status-active">Active</span>
+                                <% } %>
+                            </td>
+                            <td class="text-muted">
+                                <%= new Date(user.createdAt).toLocaleDateString() %>
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    <a href="/admin/users/<%= user.userId %>" class="btn btn-outline-soft btn-sm">
+                                        View
+                                    </a>
+                                    <a href="/admin/users/edit/<%= user.userId %>" class="btn btn-edit-soft btn-sm">
+                                        Edit
+                                    </a>
 
-                    <div class="card-body text-center">
-                        <h5 class="card-title mb-1"><%= user.username %></h5>
-                        <p class="text-muted mb-1"><%= user.email %></p>
-                        <p class="mb-2"><%= user.contact || 'No contact' %></p>
-
-                        <% if (user.banned) { %>
-                            <span class="status-pill status-banned">Banned</span>
-                        <% } else { %>
-                            <span class="status-pill status-active">Active</span>
-                        <% } %>
-
-                        <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
-                            Joined: <%= new Date(user.createdAt).toLocaleDateString() %>
-                        </p>
-
-                        <div class="action-row">
-                            <a href="/admin/users/<%= user.userId %>" class="btn btn-outline-soft w-100">
-                                View
-                            </a>
-                        </div>
-
-                        <div class="action-row">
-                            <a href="/admin/users/edit/<%= user.userId %>" class="btn btn-edit-soft w-50">
-                                Edit
-                            </a>
-
-                            <% if (!user.banned) { %>
-                                <a href="/admin/users/ban/<%= user.userId %>" class="btn btn-danger-soft w-50">
-                                    Ban
-                                </a>
-                            <% } else { %>
-                                <a href="/admin/users/unban/<%= user.userId %>" class="btn btn-outline-soft w-50">
-                                    Unban
-                                </a>
-                            <% } %>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <% }) %>
+                                    <% if (!user.banned) { %>
+                                        <a href="/banUser/<%= user.userId %>" class="btn btn-danger-soft btn-sm" onclick="confirm('are you sure you want to ban this user?')">
+                                            Ban
+                                        </a>
+                                    <% } else { %>
+                                        <a href="/unbanUser/<%= user.userId %>" class="btn btn-outline-soft btn-sm" onclick="confirm('are you sure you want to unban this user?')">
+                                            Unban
+                                        </a>
+                                    <% } %>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

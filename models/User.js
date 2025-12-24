@@ -78,6 +78,22 @@ User = {
             callback(null, results);
         });
     },
+
+    banUser: (userId, callback) => {
+        let sql = "UPDATE users SET banned = 1 WHERE userId = ?";
+        db.query(sql, [userId], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        })
+    },
+
+    unbanUser: (userId, callback) => {
+        let sql = "UPDATE users SET banned = 0 WHERE userId = ?";
+        db.query(sql, [userId], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        })
+    }
 };
 
 module.exports = User;

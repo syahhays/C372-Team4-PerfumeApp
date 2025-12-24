@@ -112,7 +112,33 @@ const UserController = {
             }
             res.render('allUsers', { users, search, sort });
         });
-    } 
+    },
+
+    banUser(req, res) {
+        const userId = req.params.userId;
+        User.banUser(userId, (err, results) => {
+        if (err) {
+            console.log(err);
+            req.flash('error', 'Error banning users.');
+            return res.redirect('/allUsers');
+        }
+        req.flash('success', 'ban successful');
+        res.redirect('/allUsers');
+        })
+    },
+
+    unbanUser(req, res) {
+        const userId = req.params.userId;
+        User.unbanUser(userId, (err, results) => {
+        if (err) {
+            console.log(err);
+            req.flash('error', 'Error unbanning users.');
+            return res.redirect('/allUsers');
+        }
+        req.flash('success', 'unban successful');
+        res.redirect('/allUsers');
+        })
+    }
 };
 
 module.exports = UserController;
