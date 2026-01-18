@@ -21,3 +21,18 @@ app.get('/myreviews', checkAuthenticated, ReviewController.getUserReviews);
 
 // Admin-only: delete a review
 app.post('/review/:id/delete', checkAuthenticated, checkAuthorised(['admin']), ReviewController.deleteReview);
+
+//AMENDMENT
+// --------------------- Review Routes --------------------------
+// Routes added for reviews
+// Submit a review for a perfume (logged in users only)
+app.post('/perfume/:id/review', checkAuthenticated, ReviewController.addReview);
+
+// View all reviews created by the current user
+app.get('/myreviews', checkAuthenticated, ReviewController.getUserReviews);
+
+// Admin-only: hide/unhide a review (no delete from UI)
+app.post('/review/:id/hide', checkAuthenticated, checkAuthorised(['admin']), ReviewController.toggleHide);
+
+// Admin-only: view all reviews (with hidden status)
+app.get('/admin/reviews', checkAuthenticated, checkAuthorised(['admin']), ReviewController.getAllReviewsForAdmin);

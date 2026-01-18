@@ -104,3 +104,29 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-12-09 16:19:39
+
+-- Reviews feature migrations (appended)
+-- Add hidden column to reviews
+ALTER TABLE `reviews` ADD COLUMN `hidden` TINYINT(1) NOT NULL DEFAULT 0;
+
+-- Create orders and order_items tables used for purchase history / review eligibility
+CREATE TABLE IF NOT EXISTS `orders` (
+  `orderId` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'completed',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`orderId`),
+  INDEX (`userId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `order_items` (
+  `orderItemId` int NOT NULL AUTO_INCREMENT,
+  `orderId` int NOT NULL,
+  `perfumeId` int NOT NULL,
+  `quantity` int NOT NULL,
+  `price` double(10,2) NOT NULL,
+  PRIMARY KEY (`orderItemId`),
+  INDEX (`orderId`),
+  INDEX (`perfumeId`),
+  CONSTRAINT `fk_order_items_order` FOREIGN KEY (`orderId`) REFERENCES `orders`(`orderId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
