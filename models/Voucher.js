@@ -53,6 +53,16 @@ const Voucher = {
     delete: (id, callback) => {
         const sql = `DELETE FROM vouchers WHERE voucherID = ?`;
         db.query(sql, [id], callback);
+    },
+
+    getByCode: (code, callback) => {
+        const sql = `SELECT * FROM vouchers WHERE code = ?`;
+        db.query(sql, [code], callback);
+    },
+
+    incrementUsageCount: (id, callback) => {
+        const sql = `UPDATE vouchers SET usageCount = usageCount + 1 WHERE voucherID = ?`;
+        db.query(sql, [id], callback);
     }
 };
 

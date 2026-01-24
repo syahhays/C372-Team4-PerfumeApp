@@ -116,12 +116,21 @@ app.get('/banUser/:userId', checkAuthenticated, checkAuthorised(['admin','headAd
 
 app.get('/unbanUser/:userId', checkAuthenticated, checkAuthorised(['admin','headAdmin']), UserController.unbanUser);
 
+app.get('/userDetails/:userId', checkAuthenticated, checkAuthorised(['admin','headAdmin']), UserController.viewById);
+
+app.get('/promote/:userId', checkAuthenticated, checkAuthorised(['headAdmin']), UserController.promote)
+
+app.get('/demote/:userId', checkAuthenticated, checkAuthorised(['headAdmin']), UserController.demote)
+
 // --------------------- Cart Routes ------------------------
 app.get('/cart', checkAuthenticated, CartController.viewCart);
 app.get('/addtocart/:id', checkAuthenticated, CartController.addToCart);
 app.post('/cart/add/:id', checkAuthenticated, CartController.addToCart);
 app.post('/cart/update/:cartId', checkAuthenticated, CartController.updateCartItem);
 app.post('/cart/remove/:cartId', checkAuthenticated, CartController.removeCartItem);
+app.post('/cart/apply-voucher', checkAuthenticated, CartController.applyVoucher);
+app.post('/cart/remove-voucher', checkAuthenticated, CartController.removeVoucher);
+app.post('/cart/update-delivery', checkAuthenticated, CartController.updateDeliveryOption);
 
 // --------------------- Review Routes --------------------------
 // Routes added for reviews

@@ -146,39 +146,56 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% users.forEach(user => { %>
+                    <% userDetails.forEach(userDetail => { %>
                         <tr>
-                            <td><strong><%= user.username %></strong></td>
-                            <td class="text-muted"><%= user.email %></td>
-                            <td><%= user.contact || 'No contact' %></td>
+                            <td><strong><%= userDetail.username %></strong></td>
+                            <td class="text-muted"><%= userDetail.email %></td>
+                            <td><%= userDetail.contact || 'No contact' %></td>
                             <td>
-                                <span class="role-badge"><%= user.role %></span>
+                                <span class="role-badge"><%= userDetail.role %></span>
                             </td>
                             <td>
-                                <% if (user.banned) { %>
+                                <% if (userDetail.banned) { %>
                                     <span class="status-pill status-banned">Banned</span>
                                 <% } else { %>
                                     <span class="status-pill status-active">Active</span>
                                 <% } %>
                             </td>
                             <td class="text-muted">
-                                <%= new Date(user.createdAt).toLocaleDateString() %>
+                                <%= new Date(userDetail.createdAt).toLocaleDateString() %>
                             </td>
                             <td>
                                 <div class="action-btns">
-                                    <a href="/admin/users/<%= user.userId %>" class="btn btn-outline-soft btn-sm">
+                                    <a href="/userDetails/<%= userDetail.userId %>" class="btn btn-outline-soft btn-sm">
                                         View
                                     </a>
-                                    <a href="/admin/users/edit/<%= user.userId %>" class="btn btn-edit-soft btn-sm">
-                                        Edit
-                                    </a>
+                                    <% if (user && user.role === 'headAdmin') { %>
 
-                                    <% if (!user.banned) { %>
-                                        <a href="/banUser/<%= user.userId %>" class="btn btn-danger-soft btn-sm" onclick="confirm('are you sure you want to ban this user?')">
+                                        <% if (userDetail.role === 'admin') { %>
+                                            <a 
+                                                href="/demote/<%= userDetail.userId %>" 
+                                                class="btn btn-danger-soft btn-sm"
+                                                onclick="return confirm('Are you sure you want to demote this admin?')"
+                                            >
+                                                Demote
+                                            </a>
+                                        <% } else if (userDetail.role === 'user') { %>
+                                            <a 
+                                                href="/promote/<%= userDetail.userId %>" 
+                                                class="btn btn-edit-soft btn-sm"
+                                                onclick="return confirm('Are you sure you want to promote this user?')"
+                                            >
+                                                Promote
+                                            </a>
+                                        <% } %>
+
+                                    <% } %>
+                                    <% if (!userDetail.banned && userDetail.role != 'headAdmin') { %>
+                                        <a href="/banUser/<%= userDetail.userId %>" class="btn btn-danger-soft btn-sm" onclick="return confirm('are you sure you want to ban this user?')">
                                             Ban
                                         </a>
-                                    <% } else { %>
-                                        <a href="/unbanUser/<%= user.userId %>" class="btn btn-outline-soft btn-sm" onclick="confirm('are you sure you want to unban this user?')">
+                                    <% } else if (userDetail.banned && userDetail.role != 'headAdmin') { %>
+                                        <a href="/unbanUser/<%= userDetail.userId %>" class="btn btn-outline-soft btn-sm" onclick="return confirm('are you sure you want to unban this user?')">
                                             Unban
                                         </a>
                                     <% } %>

@@ -132,14 +132,153 @@
                     <div class="card order-summary">
                         <div class="card-body">
                             <h5 class="card-title">Order Summary</h5>
+                            <div class="mb-3 pb-3 border-bottom">
+                                <h6 class="mb-2">Items (<%= cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0) %>)</h6>
+                                <% cartItems.forEach((item) => { %>
+                                    <div class="d-flex justify-content-between mb-2 small">
+                                        <span>
+                                            <%= item.perfumeName %>
+                                            <span class="text-muted">x<%= item.quantity %></span>
+                                        </span>
+                                        <span class="fw-semibold">$<%= Number(item.lineTotal || 0).toFixed(2) %></span>
+                                    </div>
+                                <% }) %>
+                            </div>
+                            
                             <div class="d-flex justify-content-between mb-2">
-                                <span>Items (<%= cartItems.length %>)</span>
+                                <span>Subtotal</span>
                                 <span>$<%= Number(cartTotal || 0).toFixed(2) %></span>
                             </div>
-                            <div class="d-flex justify-content-between fw-semibold border-top pt-3">
+                            
+                            <% if (appliedVoucher) { %>
+                                <div class="alert alert-success py-2 mb-3" role="alert">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small fw-semibold"><%= appliedVoucher.code %></span>
+                                        <form action="/cart/remove-voucher" method="POST" style="display: inline;">
+                                            <button class="btn btn-sm btn-close" type="submit" aria-label="Remove voucher"></button>
+                                        </form>
+                                    </div>
+                                    <small><%= appliedVoucher.description %></small>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2 text-success">
+                                    <span>Discount (<%= appliedVoucher.discountType === 'percentage' ? appliedVoucher.discountValue + '%' : '$' + Number(appliedVoucher.discountValue).toFixed(2) %>)</span>
+                                    <span>-$<%= discountAmount %></span>
+                                </div>
+                            <% } else { %>
+                                <div class="mb-3">
+                                    <label for="voucherCode" class="form-label small">Have a voucher code?</label>
+                                    <form action="/cart/apply-voucher" method="POST" class="d-flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            id="voucherCode"
+                                            name="voucherCode" 
+                                            class="form-control form-control-sm" 
+                                            placeholder="Enter code"
+                                            maxlength="20"
+                                        >
+                                        <button type="submit" class="btn btn-primary-soft btn-sm text-white">Apply</button>
+                                    </form>
+                                </div>
+                            <% } %>
+
+                            <div class="mb-3">
+                                <label class="form-label small"><strong>Rewards Points</strong></label>
+                                <div class="small text-muted mb-2">Available points: <%= Number(availablePoints || 0) %> (100 points = $1)</div>
+                                <% if (pointsRedeemed && Number(pointsRedeemed) > 0) { %>
+                                    <div class="alert alert-success py-2 d-flex justify-content-between align-items-center">
+                                        <span class="small">Redeemed <strong><%= pointsRedeemed %></strong> points</span>
+                                        <form action="/rewards/clear" method="POST">
+                                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                                        </form>
+                                    </div>
+                                <% } else { %>
+                                    <form action="/rewards/redeem" method="POST" class="d-flex gap-2">
+                                        <input
+                                            type="number"
+                                            name="pointsToRedeem"
+                                            class="form-control form-control-sm"
+                                            min="100"
+                                            step="100"
+                                            max="<%= Number(availablePoints || 0) %>"
+                                            placeholder="e.g. 200"
+                                            required
+                                        >
+                                        <button type="submit" class="btn btn-primary-soft btn-sm text-white">Redeem</button>
+                                    </form>
+                                    <% if (Number(availablePoints || 0) < 100) { %>
+                                        <div class="small text-muted mt-1">You need at least 100 points to redeem.</div>
+                                    <% } %>
+                                <% } %>
+                            </div>
+
+                            <% if (Number(rewardsDiscountApplied || 0) > 0) { %>
+                                <div class="d-flex justify-content-between mb-2 text-success">
+                                    <span>Rewards Discount</span>
+                                    <span>-$<%= rewardsDiscountApplied %></span>
+                                </div>
+                            <% } %>
+
+                            <div class="d-flex justify-content-between mb-2 small text-muted border-top pt-3">
+                                <span>Subtotal</span>
+                                <span>$<%= subtotal %></span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mb-3 small text-muted">
+                                <span>GST (9%)</span>
+                                <span>$<%= gst %></span>
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-3 small text-muted">
+                                <span>Shipping Fee <% if (Number(shippingFee) === 0) { %><span class="badge bg-success">FREE</span><% } %></span>
+                                <span><% if (Number(shippingFee) === 0) { %>FREE<% } else { %>$<%= shippingFee %><% } %></span>
+                            </div>
+
+                            <div class="d-flex justify-content-between fw-semibold border-top pt-2">
                                 <span>Total</span>
-                                <span>$<%= Number(cartTotal || 0).toFixed(2) %></span>
+                                <span>$<%= finalTotal %></span>
                             </div>
+                            
+                            <div class="alert alert-info py-2 my-3 d-flex align-items-center gap-2">
+                                <span style="font-size: 1.2rem;">📦</span>
+                                <div>
+                                    <small class="d-block"><strong>Estimated delivery:</strong> <%= deliveryInfo[deliveryOption].days %></small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small"><strong>Delivery Option</strong></label>
+                                <form action="/cart/update-delivery" method="POST">
+                                    <div class="form-check">
+                                        <input 
+                                            class="form-check-input" 
+                                            type="radio" 
+                                            name="deliveryOption" 
+                                            id="standardDelivery" 
+                                            value="standard"
+                                            <%= deliveryOption === 'standard' ? 'checked' : '' %>
+                                            onchange="this.form.submit();"
+                                        >
+                                        <label class="form-check-label" for="standardDelivery">
+                                            Standard Delivery (3–5 working days)
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input 
+                                            class="form-check-input" 
+                                            type="radio" 
+                                            name="deliveryOption" 
+                                            id="expressDelivery" 
+                                            value="express"
+                                            <%= deliveryOption === 'express' ? 'checked' : '' %>
+                                            onchange="this.form.submit();"
+                                        >
+                                        <label class="form-check-label" for="expressDelivery">
+                                            Express Delivery (1–2 working days)
+                                        </label>
+                                    </div>
+                                </form>
+                            </div>
+
                             <a class="btn btn-primary-soft text-white w-100 mt-3" href="/checkout">Proceed to Checkout</a>
                         </div>
                     </div>

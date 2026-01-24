@@ -104,13 +104,13 @@ const UserController = {
         const search = req.query.search || '';
         const sort = req.query.sort || 'desc';
 
-        User.getAll(search, sort, (err, users) => {
+        User.getAll(search, sort, (err, userDetails) => {
             if (err) {
                 console.log(err);
                 req.flash('error', 'Error fetching users.');
                 return res.redirect('/');
             }
-            res.render('allUsers', { users, search, sort });
+            res.render('allUsers', { userDetails, search, sort });
         });
     },
 
@@ -138,7 +138,47 @@ const UserController = {
         req.flash('success', 'unban successful');
         res.redirect('/allUsers');
         })
-    }
+    },
+
+    viewById(req, res) {
+        const userId = req.params.userId;
+        User.viewById(userId, (err, userDetails) => {
+            console.log (userDetails)
+            if (err) {
+                console.log(err);
+                req.flash('error', 'Error viewing user.');
+                return res.redirect('/allUsers');
+            }
+            req.flash('success', 'view successful');
+            res.render('userDetails', {userDetails})
+        })
+    },
+
+    promote(req, res) {
+        const userId = req.params.userId;
+        User.promote(userId, (err, results) => {
+            if (err) {
+                console.log(err);
+                req.flash('error', 'Error promoting user.');
+                return res.redirect('/allUsers');
+            }
+            req.flash('success', 'promoting user successful.');
+            return res.redirect('/allUsers');
+        })
+    },
+
+    demote(req, res) {
+        const userId = req.params.userId;
+        User.demote(userId, (err, results) => {
+            if (err) {
+                console.log(err);
+                req.flash('error', 'Error demoting user.');
+                return res.redirect('/allUsers');
+            }
+            req.flash('success', 'demoting user successful.');
+            return res.redirect('/allUsers');
+        })
+    },
 };
 
 module.exports = UserController;

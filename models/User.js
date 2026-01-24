@@ -93,7 +93,31 @@ User = {
             if (err) return callback(err);
             callback(null, results);
         })
-    }
+    },
+
+    viewById: (userId, callback) => {
+        let sql = "SELECT userId, username, email, contact, createdAt, role, banned FROM users WHERE userId = ?";
+        db.query(sql, [userId], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        })
+    },
+
+    promote: (userId, callback) => {
+        let sql = "UPDATE users SET role = 'admin' WHERE userId = ?"
+        db.query(sql, [userId], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        })
+    },
+    
+    demote: (userId, callback) => {
+        let sql = "UPDATE users SET role = 'user' WHERE userId = ?"
+        db.query(sql, [userId], (err, results) => {
+            if (err) return callback(err);
+            callback(null, results);
+        })
+    },
 };
 
 module.exports = User;

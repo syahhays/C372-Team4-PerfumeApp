@@ -1,5 +1,7 @@
 const Cart = require('../models/Cart');
 const Perfume = require('../models/Perfume');
+const Voucher = require('../models/Voucher');
+const Rewards = require('../models/Rewards');
 
 const CartController = {
   addToCart: (req, res) => {
@@ -45,7 +47,77 @@ const CartController = {
         0
       );
 
-      return res.render('cart', { cartItems, cartTotal });
+      // Get applied voucher from session or default to null
+      const appliedVoucher = req.session.appliedVoucher || null;
+      const rewardsDiscount = Number(req.session.rewardsDiscount || 0);
+      const pointsRedeemed = Number(req.session.pointsRedeemed || 0);
+      let discountAmount = 0;
+      let subtotal = cartTotal;
+
+      // Calculate discount if voucher is applied
+      if (appliedVoucher) {
+        if (appliedVoucher.discountType === 'percentage') {
+          discountAmount = (cartTotal * appliedVoucher.discountValue) / 100;
+        } else if (appliedVoucher.discountType === 'fixed') {
+          discountAmount = appliedVoucher.discountValue;
+        }
+        // Ensure discount doesn't exceed total
+        discountAmount = Math.min(discountAmount, cartTotal);
+        subtotal = cartTotal - discountAmount;
+      }
+
+      let rewardsDiscountApplied = 0;
+      if (rewardsDiscount > 0) {
+        rewardsDiscountApplied = Math.min(rewardsDiscount, subtotal);
+        subtotal -= rewardsDiscountApplied;
+      }
+
+      // Calculate GST (9% of subtotal)
+      const GST_RATE = 0.09;
+      const gst = subtotal * GST_RATE;
+
+      // Get delivery option from session, default to 'standard'
+      const deliveryOption = req.session.deliveryOption || 'standard';
+      
+      // Calculate shipping fee based on delivery option
+      const STANDARD_SHIPPING = 15;
+      const EXPRESS_SHIPPING = 30;
+      const FREE_SHIPPING_THRESHOLD = 250;
+      
+      let shippingFee = 0;
+      if (subtotal >= FREE_SHIPPING_THRESHOLD) {
+        shippingFee = 0;
+      } else {
+        shippingFee = deliveryOption === 'express' ? EXPRESS_SHIPPING : STANDARD_SHIPPING;
+      }
+
+      const finalTotal = subtotal + gst + shippingFee;
+
+      // Delivery info
+      const deliveryInfo = {
+        standard: { label: 'Standard Delivery', days: '3–5 working days' },
+        express: { label: 'Express Delivery', days: '1–2 working days' }
+      };
+
+      Rewards.getPoints(userId, (pointsErr, points) => {
+        const availablePoints = pointsErr ? 0 : points;
+
+        return res.render('cart', { 
+          cartItems, 
+          cartTotal, 
+          subtotal: Number(subtotal).toFixed(2), 
+          gst: Number(gst).toFixed(2), 
+          shippingFee: Number(shippingFee).toFixed(2), 
+          appliedVoucher, 
+          discountAmount: Number(discountAmount).toFixed(2), 
+          rewardsDiscountApplied: Number(rewardsDiscountApplied).toFixed(2),
+          pointsRedeemed,
+          availablePoints,
+          finalTotal: Number(finalTotal).toFixed(2),
+          deliveryOption,
+          deliveryInfo
+        });
+      });
     });
   },
 
@@ -79,6 +151,68 @@ const CartController = {
       }
       return res.redirect('/cart');
     });
+  },
+
+  applyVoucher: (req, res) => {
+    const voucherCode = (req.body.voucherCode || '').trim().toUpperCase();
+
+    if (!voucherCode) {
+      req.flash('error', 'Please enter a voucher code.');
+      return res.redirect('/cart');
+    }
+
+    Voucher.getByCode(voucherCode, (err, results) => {
+      if (err || !results || results.length === 0) {
+        req.flash('error', 'Invalid voucher code.');
+        return res.redirect('/cart');
+      }
+
+      const voucher = results[0];
+
+      // Check if voucher has expired
+      const currentDate = new Date();
+      const expiryDate = new Date(voucher.expiryDate);
+      if (currentDate > expiryDate) {
+        req.flash('error', 'This voucher has expired.');
+        return res.redirect('/cart');
+      }
+
+      // Check if usage limit has been reached
+      if (voucher.usageCount >= voucher.usageLimit) {
+        req.flash('error', 'This voucher has reached its usage limit.');
+        return res.redirect('/cart');
+      }
+
+      // Store the applied voucher in session
+      req.session.appliedVoucher = {
+        voucherID: voucher.voucherID,
+        code: voucher.code,
+        description: voucher.description,
+        discountType: voucher.discountType,
+        discountValue: voucher.discountValue
+      };
+
+      req.flash('success', `Voucher "${voucherCode}" applied successfully!`);
+      return res.redirect('/cart');
+    });
+  },
+
+  removeVoucher: (req, res) => {
+    if (req.session.appliedVoucher) {
+      delete req.session.appliedVoucher;
+      req.flash('success', 'Voucher removed.');
+    }
+    return res.redirect('/cart');
+  },
+
+  updateDeliveryOption: (req, res) => {
+    const deliveryOption = req.body.deliveryOption;
+
+    if (deliveryOption === 'standard' || deliveryOption === 'express') {
+      req.session.deliveryOption = deliveryOption;
+    }
+
+    return res.redirect('/cart');
   },
 };
 
