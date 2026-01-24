@@ -1,5 +1,5 @@
 const Wishlist = require('../models/Wishlist');
-
+const Cart = require('../models/Cart');
 const WishlistController = {
   getWishlist: (req, res) => {
     if (!req.session.user) return res.redirect('/login');   // guard
@@ -11,7 +11,8 @@ const WishlistController = {
         console.error(err);
         return res.send('Error loading wishlist');
       }
-      res.render('wishlist', { items });
+      const shareUrl = `${req.protocol}://${req.get('host')}/wishlist`;
+      res.render('wishlist', { items, shareUrl });
     });
   },
 
@@ -40,8 +41,22 @@ const WishlistController = {
   },
 
   moveToCart: (req, res) => {
-    return res.send('Move to cart not implemented yet');
-  }
+    if (!req.session.user) return res.redirect('/login');
+
+     const userId = req.session.user.userId;   // fixed here
+     const perfumeId = req.params.id;
+
+     Cart.addOrIncrementItem(userId, perfumeId, 1, (err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('Error moving item to cart');
+      }
+
+      Wishlist.removeFromWishlist(userId, perfumeId, () => {
+        return res.redirect('/cart');
+      });
+    });
+  } 
 };
 
 module.exports = WishlistController;

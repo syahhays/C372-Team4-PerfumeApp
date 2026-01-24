@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <title>YourScent.co - Perfumes</title>
+  <title>YourScent.co - Wishlist</title>
   <style>
     .card:hover {
       transform: translateY(-5px);
@@ -23,43 +26,14 @@
       background: #f7f8fb;
       color: #1a1a1a;
     }
-    .gender-badge {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: #f2e9ff;
-      color: #7c00ff;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-weight: 600;
-      font-size: 0.85rem;
+    h2 {
+      font-weight: 700;
     }
     .price-tag {
       color: #7c00ff;
       font-weight: 600;
       font-size: 1.1rem;
       margin: 0;
-    }
-    .stock-pill {
-      background: #f2f2f2;
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #222;
-      margin: 0;
-      display: inline-block;
-    }
-    .price-stock-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 12px 0;
-    }
-    .action-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
     }
     .card-body {
       display: flex;
@@ -88,46 +62,160 @@
     .btn-primary-soft {
       background: #a000ff;
       border: none;
+      color: #fff;
     }
     .btn-primary-soft:hover {
       background: #8900d8;
-    }
-    .filters {
-      gap: 12px;
-    }
-    .hidden {
-      display: none !important;
+      color: #fff;
     }
   </style>
 </head>
-
 <body>
   <%- include('partials/customerNavbar') %>
 
   <div class="container mt-5 mb-5">
-    <div class="text-center mb-3">
-      <h2>My Wishlist</h2>
+    <!-- Header row: title left, share icon + dropdown right -->
+    <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+      <div>
+        <h2 class="mb-1 fw-bold text-uppercase" style="letter-spacing: 0.06em;">
+          My Wishlist
+        </h2>
+        <p class="mb-0 text-muted" style="font-size: 0.85rem;">
+          Save your favourite scents and share them with friends.
+        </p>
+      </div>
+
+      <div class="d-flex flex-column align-items-end">
+        <div class="dropdown">
+          <button
+            class="btn btn-outline-dark btn-sm rounded-circle d-flex align-items-center justify-content-center"
+            type="button"
+            id="wishlistShareDropdown"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            aria-label="Share wishlist"
+            style="width: 40px; height: 40px;" 
+>
+            <svg xmlns="http://www.w3.org/2000/svg"
+            width="22" height="22"   
+            viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="6" cy="12" r="2.4" />
+            <circle cx="17.5" cy="6" r="2.4" />
+            <circle cx="17.5" cy="18" r="2.4" />
+            <line x1="8.1" y1="11" x2="15.3" y2="7"
+            stroke="currentColor" stroke-width="2.2" />
+            <line x1="8.1" y1="13" x2="15.3" y2="17"
+            stroke="currentColor" stroke-width="2.2" />
+          </svg>
+        </button>
+
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="wishlistShareDropdown">
+            <li>
+              <a
+                class="dropdown-item"
+                href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(shareUrl) %>"
+                target="_blank"
+              >
+                Facebook
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="https://twitter.com/intent/tweet?url=<%= encodeURIComponent(shareUrl) %>"
+                target="_blank"
+              >
+                X
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="https://api.whatsapp.com/send?text=<%= encodeURIComponent(shareUrl) %>"
+                target="_blank"
+              >
+                WhatsApp
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="https://t.me/share/url?url=<%= encodeURIComponent(shareUrl) %>"
+                target="_blank"
+              >
+                Telegram
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item"
+                href="mailto:?subject=Check%20out%20this%20wishlist&body=<%= encodeURIComponent(shareUrl) %>"
+              >
+                Email
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button
+                type="button"
+                class="dropdown-item"
+                onclick="navigator.clipboard.writeText('<%= shareUrl %>')"
+              >
+                Copy link
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <% if (!items || items.length === 0) { %>
-      <p>Your wishlist is empty.</p>
+      <div class="text-center py-5 my-4 bg-white rounded-3 shadow-sm">
+        <h4 class="fw-bold mb-2">Your wishlist is empty</h4>
+        <p class="text-muted mb-4"
+           style="max-width: 360px; margin: 0 auto; font-size: 0.9rem;">
+          Explore our collection and tap the heart icon to start building your wishlist.
+        </p>
+        <a href="/shopping" class="btn btn-primary-soft px-4">
+          Browse perfumes
+        </a>
+      </div>
     <% } else { %>
       <div class="row g-3">
         <% items.forEach(item => { %>
           <div class="col-md-4">
             <div class="card h-100">
-              <img src="/images/<%= item.image %>" class="card-img-top" alt="<%= item.perfumeName %>">
+              <img
+                src="/images/<%= item.image %>"
+                class="card-img-top"
+                alt="<%= item.perfumeName %>"
+              >
               <div class="card-body d-flex flex-column">
                 <h5 class="card-title"><%= item.perfumeName %></h5>
-                <p class="card-text fw-bold">$<%= item.price %></p>
+                <p class="card-text fw-bold price-tag">
+                  $<%= item.price %>
+                </p>
 
                 <div class="mt-auto d-flex justify-content-between">
-                  <form action="/wishlist/move-to-cart/<%= item.perfumeId %>" method="post">
-                    <button type="submit" class="btn btn-primary btn-sm">Move to Cart</button>
+                  <form
+                    action="/wishlist/move-to-cart/<%= item.perfumeId %>"
+                    method="post"
+                  >
+                    <button type="submit" class="btn btn-primary btn-sm">
+                      Move to Cart
+                    </button>
                   </form>
 
-                  <form action="/wishlist/remove/<%= item.perfumeId %>" method="post">
-                    <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                  <form
+                    action="/wishlist/remove/<%= item.perfumeId %>"
+                    method="post"
+                  >
+                    <button
+                      type="submit"
+                      class="btn btn-outline-danger btn-sm"
+                    >
+                      Remove
+                    </button>
                   </form>
                 </div>
               </div>
@@ -138,4 +226,4 @@
     <% } %>
   </div>
 </body>
-
+</html>

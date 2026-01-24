@@ -15,6 +15,11 @@
 <body>
   <div class="page">
     <h2>My Reviews</h2>
+    <% if (user && user.role === 'admin') { %>
+      <a href="/inventory" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Inventory</a>
+    <% } else { %>
+      <a href="/shopping" class="btn btn-sm btn-outline-secondary mb-2">&larr; Back to Shopping</a>
+    <% } %>
     <% if (!reviews || reviews.length === 0) { %>
       <p>You haven't left any reviews yet.</p>
     <% } else { %>
@@ -24,7 +29,7 @@
             <img src="/images/<%= r.image %>" alt="<%= r.perfumeName %>" style="width:64px;height:64px;object-fit:cover;border-radius:8px;margin-right:12px;" />
             <div>
               <div><strong><%= r.perfumeName %></strong></div>
-              <div class="rating">Rating: <%= r.rating %> / 5</div>
+              <div class="rating">Rating: <%= r.rating %> / 5 <% if (r.hidden) { %><small class="text-muted">(hidden)</small><% } %></div>
             </div>
             <div class="ms-auto text-muted"><%= new Date(r.created_at).toLocaleString() %></div>
           </div>
